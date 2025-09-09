@@ -17,6 +17,8 @@
     "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
     "deploy:root:local": "hardhat run scripts/deployRoot.ts --network localhost",
     "deploy:root:sepolia": "hardhat run scripts/deployRoot.ts --network sepolia",
+    "circle:create:local": "hardhat run scripts/proposeChild.ts --network localhost",
+    "circle:create:sepolia": "hardhat run scripts/proposeChild.ts --network sepolia",
     "verify": "node scripts/verify.js",
     "verify:sepolia": "node scripts/verify.js --network sepolia"
   },
