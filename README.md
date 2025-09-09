@@ -91,7 +91,12 @@ The app will be available at `http://localhost:5173`
 
 ## 📦 Deployments
 
-Deployment artifacts are saved to `deployments/<network>/MyToken.json` with address and ABI. After deploying to your target network, copy the address into `.env.local` as `VITE_MY_TOKEN_ADDRESS` for the frontend to read.
+Deployment artifacts are saved to `deployments/<network>/`:
+
+- `root.json` — registry, factory, and root circle module addresses (governor, timelock, treasury, token)
+- `MyToken.json` — token address and ABI (when using the simple token deploy script)
+
+After deploying to your target network, copy the token address into `.env.local` as `VITE_MY_TOKEN_ADDRESS` for the frontend to read.
 
 Optional: To use WebSockets in the frontend (default is HTTP to avoid blocked WS environments), set `VITE_USE_WS=true` in `.env.local`.
 
@@ -118,6 +123,32 @@ contracts/              # Solidity smart contracts
 scripts/               # Deployment scripts
 test/                  # Contract tests
 ```
+
+## 🧭 DAO MVP Scripts
+
+The project includes a minimal holacracy-style DAO scaffold built around circles (each with a Governor + Timelock + Treasury) and a shared Factory + Registry.
+
+- Deploy root circle locally:
+  - Start a node: `npx hardhat node`
+  - Deploy root: `pnpm deploy:root:local`
+
+- Create a child circle via governance (under root):
+  - `pnpm circle:create:local`
+  - This proposes a call to the shared factory, votes, queues in the timelock, advances time, and executes.
+
+- Create a child under any circle id (env-driven):
+  - `PARENT_ID=1 CHILD_NAME="Grants Circle" pnpm circle:create-under:local`
+  - Optional env overrides: `VOTING_DELAY`, `VOTING_PERIOD`, `THRESHOLD`, `QUORUM`, `TIMELOCK_DELAY`
+
+- List the full circle tree from the Registry:
+  - `pnpm circle:list:local`
+  - Verbose addresses: `VERBOSE=1 pnpm circle:list:local`
+  - JSON output: `JSON=1 pnpm circle:list:local`
+
+Notes:
+
+- Local network is configured to allow unlimited contract size to simplify development.
+- Deployment outputs are written to `deployments/<network>/`. Consider adding `/deployments/` to `.gitignore` if you don’t want local artifacts tracked.
 
 ## 🎯 Key Features
 
