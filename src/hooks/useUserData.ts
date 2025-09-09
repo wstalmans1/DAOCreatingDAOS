@@ -29,8 +29,12 @@ const CONTRACT_ADDRESS = import.meta.env.VITE_MY_TOKEN_ADDRESS as `0x${string}`
 
 export function useUserData() {
   const { address, chainId } = useAccount()
-  
-  const { data: balance, isLoading: isLoadingBalance, error: balanceError } = useReadContract({
+
+  const {
+    data: balance,
+    isLoading: isLoadingBalance,
+    error: balanceError,
+  } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: ERC20_ABI,
     functionName: 'balanceOf',

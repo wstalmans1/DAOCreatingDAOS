@@ -1,5 +1,5 @@
-import { createPublicClient, http, webSocket } from "viem"
-import { sepolia } from "viem/chains"
+import { createPublicClient, http, webSocket } from 'viem'
+import { sepolia } from 'viem/chains'
 
 const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY
 

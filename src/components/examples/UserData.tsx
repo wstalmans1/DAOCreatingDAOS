@@ -4,7 +4,8 @@ import { formatUnits } from 'viem'
 
 export function UserData() {
   const { address, chainId } = useAccount()
-  const { balance, symbol, decimals, isLoadingBalance, balanceError, contractAddress } = useUserData()
+  const { balance, symbol, decimals, isLoadingBalance, balanceError, contractAddress } =
+    useUserData()
 
   if (!address) {
     return <div className="text-gray-500">Please connect your wallet</div>
@@ -36,7 +37,8 @@ export function UserData() {
             </>
           ) : (
             <p className="text-sm text-gray-600">
-              No contract address configured. Please deploy a contract and update VITE_MY_TOKEN_ADDRESS in your .env.local file.
+              No contract address configured. Please deploy a contract and update
+              VITE_MY_TOKEN_ADDRESS in your .env.local file.
             </p>
           )}
         </div>

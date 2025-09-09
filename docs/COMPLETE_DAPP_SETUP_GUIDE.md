@@ -22,6 +22,7 @@ This comprehensive guide combines **best practices** and **setup instructions** 
 ## 🚀 Quick Start
 
 ### Minimal Setup (4 Steps)
+
 ```bash
 # 1. Create project
 pnpm create vite@latest my-dapp --template react-ts
@@ -41,6 +42,7 @@ pnpm dev
 ```
 
 ### Comprehensive Setup (14 Steps)
+
 Follow the detailed setup instructions in the [Project Setup](#-project-setup) section below.
 
 ---
@@ -58,6 +60,7 @@ Follow the detailed setup instructions in the [Project Setup](#-project-setup) s
 ## 🏗️ Project Setup
 
 ### Prerequisites
+
 - **Node.js** 18+ and **pnpm** installed
 - **Cursor IDE** with TypeScript support
 - **Git** for version control
@@ -65,6 +68,7 @@ Follow the detailed setup instructions in the [Project Setup](#-project-setup) s
 - **Alchemy API Key** (get from [Alchemy](https://www.alchemy.com/))
 
 ### Step 1: Initialize Project
+
 ```bash
 mkdir my-dapp
 cd my-dapp
@@ -72,6 +76,7 @@ pnpm init
 ```
 
 ### Step 2: Install Dependencies
+
 ```bash
 # Core React and build tools
 pnpm add react@18.2.0 react-dom@18.2.0 react-router-dom@6.20.0
@@ -99,6 +104,7 @@ pnpm add -D @openzeppelin/contracts@^5.4.0 @openzeppelin/contracts-upgradeable@^
 ```
 
 ### Step 3: Create Directory Structure
+
 ```bash
 mkdir -p src/{components,hooks,config,lib,constants,contexts,stores,utils,abis,realtime,contracts}
 mkdir -p src/components/{ui,examples}
@@ -111,6 +117,7 @@ mkdir -p contracts scripts test
 ## ⚙️ Configuration
 
 ### TypeScript Configuration (`tsconfig.json`)
+
 ```json
 {
   "compilerOptions": {
@@ -136,6 +143,7 @@ mkdir -p contracts scripts test
 ```
 
 ### Vite Configuration (`vite.config.ts`)
+
 ```typescript
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -144,9 +152,9 @@ export default defineConfig({
   plugins: [react()],
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-    'global': 'globalThis',
-    'Buffer': 'globalThis.Buffer',
-    'util': 'globalThis.util',
+    global: 'globalThis',
+    Buffer: 'globalThis.Buffer',
+    util: 'globalThis.util',
   },
   resolve: {
     alias: {
@@ -173,6 +181,7 @@ export default defineConfig({
 ```
 
 ### Environment Variables (`.env.local`)
+
 ```bash
 # WalletConnect Project ID
 VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
@@ -192,6 +201,7 @@ VITE_MY_TOKEN_ADDRESS=0x...
 ## ⚡ Smart Contract Development
 
 ### Hardhat Setup
+
 ```bash
 npx hardhat init
 # Choose "Create a TypeScript project"
@@ -200,13 +210,14 @@ npx hardhat init
 ```
 
 ### Hardhat Configuration (`hardhat.config.ts`)
+
 ```typescript
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
+import { HardhatUserConfig } from 'hardhat/config'
+import '@nomicfoundation/hardhat-toolbox'
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.24",
+    version: '0.8.24',
     settings: {
       optimizer: {
         enabled: true,
@@ -219,7 +230,9 @@ const config: HardhatUserConfig = {
       chainId: 1337,
     },
     sepolia: {
-      url: process.env.SEPOLIA_RPC_URL || `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      url:
+        process.env.SEPOLIA_RPC_URL ||
+        `https://eth-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 11155111,
     },
@@ -229,14 +242,15 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
-    currency: "USD",
+    currency: 'USD',
   },
-};
+}
 
-export default config;
+export default config
 ```
 
 ### Example Contract (`contracts/MyToken.sol`)
+
 ```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
@@ -256,41 +270,39 @@ contract MyToken is ERC20, Ownable {
 ```
 
 ### Deployment Script (`scripts/deploy.ts`)
+
 ```typescript
-import { ethers } from "hardhat";
+import { ethers } from 'hardhat'
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with the account:", deployer.address);
+  const [deployer] = await ethers.getSigners()
+  console.log('Deploying contracts with the account:', deployer.address)
 
-  const MyToken = await ethers.getContractFactory("MyToken");
-  const myToken = await MyToken.deploy();
-  await myToken.waitForDeployment();
+  const MyToken = await ethers.getContractFactory('MyToken')
+  const myToken = await MyToken.deploy()
+  await myToken.waitForDeployment()
 
-  const address = await myToken.getAddress();
-  console.log("MyToken deployed to:", address);
+  const address = await myToken.getAddress()
+  console.log('MyToken deployed to:', address)
 
   // Save contract address for frontend
-  const fs = require('fs');
+  const fs = require('fs')
   const contractInfo = {
     address: address,
-    abi: JSON.parse(myToken.interface.format('json') as string)
-  };
-  
-  fs.writeFileSync(
-    './src/contracts/MyToken.json',
-    JSON.stringify(contractInfo, null, 2)
-  );
-  
-  console.log("Contract ABI saved to src/contracts/MyToken.json");
+    abi: JSON.parse(myToken.interface.format('json') as string),
+  }
+
+  fs.writeFileSync('./src/contracts/MyToken.json', JSON.stringify(contractInfo, null, 2))
+
+  console.log('Contract ABI saved to src/contracts/MyToken.json')
 }
 
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  });
+    console.error(error)
+    process.exit(1)
+  })
 ```
 
 ---
@@ -298,6 +310,7 @@ main()
 ## 🎨 Frontend Development
 
 ### Wagmi Configuration (`src/config/wagmi.ts`)
+
 ```typescript
 import { http, webSocket, createConfig, fallback } from 'wagmi'
 import { sepolia } from 'wagmi/chains'
@@ -306,7 +319,8 @@ import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'fallback_id'
 
 // Mobile detection for performance tuning
-const isMobile = typeof window !== 'undefined' && 
+const isMobile =
+  typeof window !== 'undefined' &&
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 
 // RPC Provider Configuration
@@ -336,6 +350,7 @@ export const config = createConfig({
 ```
 
 ### TanStack Query Setup (`src/main.tsx`)
+
 ```typescript
 import React from 'react'
 import ReactDOM from 'react-dom/client'
@@ -376,6 +391,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 ```
 
 ### Scopes Configuration (`src/lib/scopes.ts`)
+
 ```typescript
 import { QueryClient } from '@tanstack/react-query'
 
@@ -383,18 +399,24 @@ import { QueryClient } from '@tanstack/react-query'
 export const scopes = {
   userData: (chainId: number, address: string) =>
     ['user', 'data', chainId, address.toLowerCase()] as const,
-  
+
   contractData: (chainId: number, contractAddress: string) =>
     ['contract', 'data', chainId, contractAddress.toLowerCase()] as const,
-  
+
   eventLogs: (contractAddress: string, eventSig: string, fromBlock?: bigint, toBlock?: bigint) =>
-    ['events', 'logs', contractAddress.toLowerCase(), eventSig, fromBlock?.toString(), toBlock?.toString()] as const,
-  
+    [
+      'events',
+      'logs',
+      contractAddress.toLowerCase(),
+      eventSig,
+      fromBlock?.toString(),
+      toBlock?.toString(),
+    ] as const,
+
   contractLogs: (contractAddress: string) =>
     ['contract', 'logs', contractAddress.toLowerCase()] as const,
-  
-  blockData: (blockNumber: string) =>
-    ['block', 'data', blockNumber] as const,
+
+  blockData: (blockNumber: string) => ['block', 'data', blockNumber] as const,
 } as const
 
 // Debounced invalidation to prevent flicker
@@ -403,23 +425,23 @@ let invalidationTimeout: number | null = null
 
 export function invalidateByScope(qc: QueryClient, scope: string | readonly unknown[]) {
   const scopeKey = Array.isArray(scope) ? scope.map(String).join('|') : scope
-  
+
   pendingInvalidations.add(scopeKey as string)
-  
+
   if (invalidationTimeout) {
     clearTimeout(invalidationTimeout)
   }
-  
+
   invalidationTimeout = window.setTimeout(() => {
     const scopesToInvalidate = Array.from(pendingInvalidations)
     pendingInvalidations.clear()
-    
-    scopesToInvalidate.forEach(scopeStr => {
+
+    scopesToInvalidate.forEach((scopeStr) => {
       if (scopeStr.includes('|')) {
         const keyParts = scopeStr.split('|')
-        qc.invalidateQueries({ 
+        qc.invalidateQueries({
           queryKey: keyParts,
-          exact: true 
+          exact: true,
         })
       } else {
         qc.invalidateQueries({
@@ -430,7 +452,7 @@ export function invalidateByScope(qc: QueryClient, scope: string | readonly unkn
         })
       }
     })
-    
+
     console.log(`📱 Debounced invalidation completed for scopes:`, scopesToInvalidate)
   }, 50)
 }
@@ -443,6 +465,7 @@ export function invalidateByScope(qc: QueryClient, scope: string | readonly unkn
 ### Hook Conflicts & Common Footguns
 
 #### The Short Answer
+
 - **Wagmi/Viem** = blockchain I/O (reads/writes, wallet/chain status, event watching)
 - **TanStack Query** = server-state cache + fetching lifecycle (staleTime, retries, dedupe)
 - **React `useState/useEffect`** = local UI state and non-data side-effects only
@@ -450,6 +473,7 @@ export function invalidateByScope(qc: QueryClient, scope: string | readonly unkn
 #### ✅ Safe Patterns
 
 1. **Fetch data via hooks, not `useEffect`:**
+
    ```typescript
    const { data, isLoading, error } = useReadContract({
      address: contractAddress,
@@ -470,27 +494,29 @@ export function invalidateByScope(qc: QueryClient, scope: string | readonly unkn
    - Ephemeral UI (open/close, input text) → `useState`/Zustand only
 
 3. **Guard fetches with `enabled`:**
+
    ```typescript
-   const { address } = useAccount();
+   const { address } = useAccount()
    const { data } = useReadContract({
      address: contract,
      abi,
      functionName: 'balanceOf',
      args: [address!],
-     query: { enabled: !!address, staleTime: 30_000, gcTime: 300_000 }
-   });
+     query: { enabled: !!address, staleTime: 30_000, gcTime: 300_000 },
+   })
    ```
 
 4. **Invalidate, don't setState:**
+
    ```typescript
-   const qc = useQueryClient();
+   const qc = useQueryClient()
    const write = useWriteContract({
      mutation: {
        onSuccess() {
-         qc.invalidateQueries({ queryKey: ['org','data', chainId, orgAddress] });
-       }
-     }
-   });
+         qc.invalidateQueries({ queryKey: ['org', 'data', chainId, orgAddress] })
+       },
+     },
+   })
    ```
 
 5. **Event-driven freshness:**
@@ -499,8 +525,8 @@ export function invalidateByScope(qc: QueryClient, scope: string | readonly unkn
      address: orgAddress,
      abi,
      eventName: 'NameUpdated',
-     onLogs: () => qc.invalidateQueries({ queryKey: ['org','data', chainId, orgAddress] }),
-   });
+     onLogs: () => qc.invalidateQueries({ queryKey: ['org', 'data', chainId, orgAddress] }),
+   })
    ```
 
 #### ❌ Common Footguns to Avoid
@@ -519,8 +545,8 @@ export function invalidateByScope(qc: QueryClient, scope: string | readonly unkn
 
 ```typescript
 // src/lib/alchemyClient.ts
-import { createPublicClient, http, webSocket } from "viem"
-import { sepolia } from "viem/chains"
+import { createPublicClient, http, webSocket } from 'viem'
+import { sepolia } from 'viem/chains'
 
 const ALCHEMY_API_KEY = import.meta.env.VITE_ALCHEMY_API_KEY
 
@@ -557,7 +583,7 @@ const ERC20_ABI = [
 
 export function useUserData() {
   const { address, chainId } = useAccount()
-  
+
   const { data, isLoading, error } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: ERC20_ABI,
@@ -583,6 +609,7 @@ export function useUserData() {
 ## 🚀 Deployment
 
 ### Development Commands
+
 ```bash
 # Install dependencies
 pnpm install
@@ -608,6 +635,7 @@ pnpm verify          # Verify contract on Etherscan
 ```
 
 ### Complete Development Cycle
+
 ```bash
 # 1. Start local Hardhat network
 npx hardhat node
@@ -623,6 +651,7 @@ pnpm dev
 ```
 
 ### Testing on Sepolia
+
 ```bash
 # 1. Deploy to Sepolia testnet
 pnpm deploy:sepolia

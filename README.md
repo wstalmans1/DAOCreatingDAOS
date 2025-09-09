@@ -15,17 +15,27 @@ A production-ready Ethereum DApp built with modern tools and best practices, fol
 
 ### 1. Environment Setup
 
-Copy the environment template and fill in your values:
+Create separate env files for backend (Hardhat) and frontend (Vite):
 
 ```bash
-cp env.template .env.local
+# Backend (Node/Hardhat)
+cp env.template .env
+
+# Frontend (Vite)
+cp env.local.template .env.local
 ```
 
-Update `.env.local` with:
-- **VITE_WALLETCONNECT_PROJECT_ID**: Get from [WalletConnect Cloud](https://cloud.walletconnect.com/)
-- **VITE_ALCHEMY_API_KEY**: Get from [Alchemy](https://www.alchemy.com/)
-- **PRIVATE_KEY**: Your wallet private key for contract deployment
-- **ETHERSCAN_API_KEY**: For contract verification
+Fill the files with your values:
+
+- `.env` (backend only, NOT exposed to browser):
+  - `PRIVATE_KEY` — deployment wallet private key
+  - `ETHERSCAN_API_KEY` — for contract verification
+  - `SEPOLIA_RPC_URL` or `ALCHEMY_API_KEY` — RPC provider config
+- `.env.local` (frontend, Vite will expose these):
+  - `VITE_WALLETCONNECT_PROJECT_ID` — from WalletConnect Cloud
+  - `VITE_ALCHEMY_API_KEY` — from Alchemy
+  - `VITE_CHAIN_ID` — default `11155111` (Sepolia)
+  - `VITE_MY_TOKEN_ADDRESS` — set after deploying the token
 
 ### 2. Install Dependencies
 
@@ -36,16 +46,19 @@ pnpm install
 ### 3. Smart Contract Development
 
 Compile contracts:
+
 ```bash
 pnpm compile
 ```
 
 Run tests:
+
 ```bash
 pnpm test
 ```
 
 Deploy to local Hardhat network:
+
 ```bash
 # In terminal 1 - Start local blockchain
 npx hardhat node
@@ -55,18 +68,32 @@ pnpm deploy:local
 ```
 
 Deploy to Sepolia testnet:
+
 ```bash
 pnpm deploy:sepolia
+```
+
+Verify on Etherscan (reads address from deployments folder):
+
+```bash
+pnpm verify:sepolia
 ```
 
 ### 4. Frontend Development
 
 Start the development server:
+
 ```bash
 pnpm dev
 ```
 
 The app will be available at `http://localhost:5173`
+
+## 📦 Deployments
+
+Deployment artifacts are saved to `deployments/<network>/MyToken.json` with address and ABI. After deploying to your target network, copy the address into `.env.local` as `VITE_MY_TOKEN_ADDRESS` for the frontend to read.
+
+Optional: To use WebSockets in the frontend (default is HTTP to avoid blocked WS environments), set `VITE_USE_WS=true` in `.env.local`.
 
 ## 🏗️ Project Structure
 
@@ -95,18 +122,21 @@ test/                  # Contract tests
 ## 🎯 Key Features
 
 ### Smart Contract Integration
+
 - ✅ Type-safe contract interactions with Wagmi + Viem
 - ✅ Automatic ABI generation and type inference
 - ✅ Event watching and real-time updates
 - ✅ Proper error handling and loading states
 
 ### State Management
+
 - ✅ TanStack Query for server state caching
 - ✅ Scoped invalidation for efficient updates
 - ✅ Debounced invalidation to prevent flicker
 - ✅ Zustand for local UI state
 
 ### Performance Optimizations
+
 - ✅ Mobile-optimized transport selection (HTTP vs WebSocket)
 - ✅ Proper query configuration with staleTime/gcTime
 - ✅ Code splitting and bundle optimization
@@ -115,12 +145,14 @@ test/                  # Contract tests
 ## 🔧 Development Workflow
 
 ### Local Development
+
 1. Start Hardhat node: `npx hardhat node`
 2. Deploy contracts: `pnpm deploy:local`
 3. Start frontend: `pnpm dev`
 4. Connect MetaMask to localhost:8545
 
 ### Testnet Deployment
+
 1. Deploy to Sepolia: `pnpm deploy:sepolia`
 2. Update contract address in `.env.local`
 3. Verify contract: `pnpm verify`
@@ -129,17 +161,20 @@ test/                  # Contract tests
 ## 📚 Best Practices Implemented
 
 ### Hook Usage Patterns
+
 - ✅ **Wagmi/Viem**: Blockchain I/O (reads/writes, wallet/chain status)
 - ✅ **TanStack Query**: Server-state cache + fetching lifecycle
 - ✅ **React useState/useEffect**: Local UI state only
 
 ### Data Management
+
 - ✅ Single source of truth for blockchain data
 - ✅ Proper enabled guards for all queries
 - ✅ Event-driven cache invalidation
 - ✅ Scoped query keys for precise updates
 
 ### Performance
+
 - ✅ Debounced invalidations
 - ✅ Optimized transport selection
 - ✅ Proper staleTime configuration

@@ -1,0 +1,25 @@
+# Build outputs
+node_modules
+.dist
+.dist-ssr
+dist
+build
+
+# Hardhat / Solidity
+artifacts
+cache
+typechain-types
+coverage
+
+# App specific
+.deployments
+deployments
+pnpm-lock.yaml
+
+# Misc
+.next
+.nuxt
+.out
+.storybook-out
+.tmp
+.temp
