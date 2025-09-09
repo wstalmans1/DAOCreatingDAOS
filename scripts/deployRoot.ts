@@ -1,8 +1,9 @@
-import { ethers } from 'hardhat'
+import hre from 'hardhat'
 import fs from 'fs'
 import path from 'path'
 
 async function main() {
+  const { ethers } = hre
   const [deployer] = await ethers.getSigners()
   console.log('Deployer:', deployer.address)
 
@@ -47,7 +48,7 @@ async function main() {
   }
 
   // Read return values via callStatic, then execute for real
-  const preview = await factory.callStatic.createCircle(params)
+  const preview = await factory.createCircle.staticCall(params)
   const tx = await factory.createCircle(params)
   await tx.wait()
 

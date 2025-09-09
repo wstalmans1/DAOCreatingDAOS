@@ -15,6 +15,7 @@ const config = {
   networks: {
     hardhat: {
       chainId: 1337,
+      allowUnlimitedContractSize: true,
     },
     sepolia: {
       url:
