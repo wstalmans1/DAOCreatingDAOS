@@ -15,6 +15,8 @@
     "test": "hardhat test",
     "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
     "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
+    "deploy:root:local": "hardhat run scripts/deployRoot.ts --network localhost",
+    "deploy:root:sepolia": "hardhat run scripts/deployRoot.ts --network sepolia",
     "verify": "node scripts/verify.js",
     "verify:sepolia": "node scripts/verify.js --network sepolia"
   },
