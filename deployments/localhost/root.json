@@ -1,0 +1,13 @@
+{
+  "network": "localhost",
+  "chainId": "1337",
+  "token": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  "registry": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+  "factory": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+  "root": {
+    "id": "1",
+    "governor": "0x6D544390Eb535d61e196c87d6B9c80dCD8628Acd",
+    "timelock": "0xd8058efe0198ae9dD7D563e1b4938Dcbc86A1F81",
+    "treasury": "0xB1eDe3F5AC8654124Cb5124aDf0Fd3885CbDD1F7"
+  }
+}

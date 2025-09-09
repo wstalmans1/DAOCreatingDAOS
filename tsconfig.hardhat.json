@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "hardhat", "@nomicfoundation/hardhat-viem"]
+  },
+  "include": ["hardhat.config.cjs", "scripts/**/*.ts"]
+}

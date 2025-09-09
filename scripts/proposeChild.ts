@@ -1,46 +1,24 @@
 import hre from 'hardhat'
 import fs from 'fs'
 import path from 'path'
+import { encodeFunctionData, keccak256, stringToHex } from 'viem'
 
-const GOVERNOR_ABI = [
-  'function name() view returns (string)',
-  'function propose(address[] targets,uint256[] values,bytes[] calldatas,string description) returns (uint256)',
-  'function getProposalId(address[] targets,uint256[] values,bytes[] calldatas,bytes32 descriptionHash) view returns (uint256)',
-  'function proposalSnapshot(uint256 proposalId) view returns (uint256)',
-  'function proposalDeadline(uint256 proposalId) view returns (uint256)',
-  'function castVote(uint256 proposalId,uint8 support) returns (uint256)',
-  'function queue(address[] targets,uint256[] values,bytes[] calldatas,bytes32 descriptionHash) returns (uint256)',
-  'function execute(address[] targets,uint256[] values,bytes[] calldatas,bytes32 descriptionHash) payable returns (uint256)',
-]
-
-const FACTORY_ABI = [
-  'function createCircle((uint256 parentId,string name,address token,uint48 votingDelay,uint32 votingPeriod,uint256 proposalThreshold,uint256 quorumNumerator,uint48 timelockDelay) p) returns (uint256,address,address,address)',
-]
-
-const REGISTRY_ABI = [
-  'function totalCircles() view returns (uint256)',
-  'function circles(uint256 id) view returns (uint256 id_, uint256 parentId, address governor, address timelock, address treasury, address token, string name)',
-]
-
-async function mineBlocks(ethers: typeof hre.ethers, count: number) {
+async function mineBlocks(count: number) {
   for (let i = 0; i < count; i++) {
-    await ethers.provider.send('evm_mine', [])
+    await hre.network.provider.send('evm_mine', [])
   }
 }
 
 async function main() {
-  const { ethers } = hre
+  const [walletClient] = await hre.viem.getWalletClients()
+  const publicClient = await hre.viem.getPublicClient()
+  console.log('Proposer:', walletClient.account.address)
 
-  const [deployer] = await ethers.getSigners()
-  console.log('Proposer:', deployer.address)
-
-  const net = await ethers.provider.getNetwork()
-  let netName = net?.name && net.name !== 'unknown' ? net.name : ''
-  if (!netName) {
-    if (net.chainId === 31337n) netName = 'localhost'
-    else if (net.chainId === 11155111n) netName = 'sepolia'
-    else netName = net.chainId.toString()
-  }
+  const chainId = await publicClient.getChainId()
+  let netName = ''
+  if (chainId === 31337 || chainId === 1337) netName = 'localhost'
+  else if (chainId === 11155111) netName = 'sepolia'
+  else netName = String(chainId)
 
   const deploymentsFile = path.join('deployments', netName, 'root.json')
   if (!fs.existsSync(deploymentsFile)) {
@@ -56,8 +34,8 @@ async function main() {
 
   const circleName = process.argv[2] || 'Ops Circle'
 
-  const governor = new ethers.Contract(governorAddr, GOVERNOR_ABI, deployer)
-  const registry = new ethers.Contract(registryAddr, REGISTRY_ABI, deployer)
+  const governorAbi = (await hre.artifacts.readArtifact('CircleGovernor')).abi
+  const registryAbi = (await hre.artifacts.readArtifact('CircleRegistry')).abi
 
   const params = {
     parentId,
@@ -70,52 +48,98 @@ async function main() {
     timelockDelay: 60n,
   }
 
-  const iface = new ethers.Interface(FACTORY_ABI)
-  const calldata = iface.encodeFunctionData('createCircle', [params])
+  const factoryAbi = (await hre.artifacts.readArtifact('CircleFactory')).abi
+  const calldata = encodeFunctionData({
+    abi: factoryAbi,
+    functionName: 'createCircle',
+    args: [params],
+  })
   const targets = [factoryAddr]
-  const values = [0]
+  const values = [0n]
   const calldatas = [calldata]
   const description = `Create child circle: ${circleName}`
-  const descriptionHash = ethers.id(description)
+  const descriptionHash = keccak256(stringToHex(description))
 
   console.log('Proposing...')
-  const tx = await governor.propose(targets, values, calldatas, description)
-  const rc = await tx.wait()
-  console.log('Proposed in tx:', rc?.hash)
-
-  const proposalId = await governor.getProposalId(targets, values, calldatas, descriptionHash)
+  await walletClient.writeContract({
+    address: governorAddr,
+    abi: governorAbi,
+    functionName: 'propose',
+    args: [targets, values, calldatas, description],
+  })
+  const proposalId = (await publicClient.readContract({
+    address: governorAddr,
+    abi: governorAbi,
+    functionName: 'getProposalId',
+    args: [targets, values, calldatas, descriptionHash],
+  })) as bigint
   console.log('Proposal ID:', proposalId.toString())
 
   // Move to voting start
-  const snapshot = await governor.proposalSnapshot(proposalId)
-  const current = await ethers.provider.getBlockNumber()
+  const snapshot = (await publicClient.readContract({
+    address: governorAddr,
+    abi: governorAbi,
+    functionName: 'proposalSnapshot',
+    args: [proposalId],
+  })) as bigint
+  const current = Number(await publicClient.getBlockNumber())
   if (current <= Number(snapshot)) {
-    await mineBlocks(ethers, Number(snapshot) - current + 1)
+    await mineBlocks(Number(snapshot) - current + 1)
   }
 
   console.log('Casting vote...')
-  await (await governor.castVote(proposalId, 1)).wait() // 1 = For
+  await walletClient.writeContract({
+    address: governorAddr,
+    abi: governorAbi,
+    functionName: 'castVote',
+    args: [proposalId, 1],
+  })
 
   // Move to end of voting period
-  const deadline = await governor.proposalDeadline(proposalId)
-  const current2 = await ethers.provider.getBlockNumber()
+  const deadline = (await publicClient.readContract({
+    address: governorAddr,
+    abi: governorAbi,
+    functionName: 'proposalDeadline',
+    args: [proposalId],
+  })) as bigint
+  const current2 = Number(await publicClient.getBlockNumber())
   if (current2 <= Number(deadline)) {
-    await mineBlocks(ethers, Number(deadline) - current2 + 1)
+    await mineBlocks(Number(deadline) - current2 + 1)
   }
 
   console.log('Queueing...')
-  await (await governor.queue(targets, values, calldatas, descriptionHash)).wait()
+  await walletClient.writeContract({
+    address: governorAddr,
+    abi: governorAbi,
+    functionName: 'queue',
+    args: [targets, values, calldatas, descriptionHash],
+  })
 
   // Increase time for timelock
-  await ethers.provider.send('evm_increaseTime', [61])
-  await ethers.provider.send('evm_mine', [])
+  await hre.network.provider.send('evm_increaseTime', [61])
+  await hre.network.provider.send('evm_mine', [])
 
   console.log('Executing...')
-  await (await governor.execute(targets, values, calldatas, descriptionHash, { value: 0 })).wait()
+  await walletClient.writeContract({
+    address: governorAddr,
+    abi: governorAbi,
+    functionName: 'execute',
+    args: [targets, values, calldatas, descriptionHash],
+    value: 0n,
+  })
 
-  const total = await registry.totalCircles()
-  const childId = total // last created
-  const circle = await registry.circles(childId)
+  const total = (await publicClient.readContract({
+    address: registryAddr,
+    abi: registryAbi,
+    functionName: 'totalCircles',
+  })) as bigint
+  const childId = total
+  const circle = (await publicClient.readContract({
+    address: registryAddr,
+    abi: registryAbi,
+    functionName: 'circles',
+    args: [childId],
+  })) as any
   console.log('Child circle created:', {
     id: childId.toString(),
     parentId: circle.parentId.toString(),
