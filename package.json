@@ -21,6 +21,8 @@
     "circle:create:sepolia": "hardhat run scripts/proposeChild.ts --network sepolia",
     "circle:create-under:local": "PARENT_ID=1 hardhat run scripts/proposeChildUnder.ts --network localhost",
     "circle:create-under:sepolia": "PARENT_ID=1 hardhat run scripts/proposeChildUnder.ts --network sepolia",
+    "circle:list:local": "hardhat run scripts/listCircles.ts --network localhost",
+    "circle:list:sepolia": "hardhat run scripts/listCircles.ts --network sepolia",
     "verify": "node scripts/verify.js",
     "verify:sepolia": "node scripts/verify.js --network sepolia"
   },
