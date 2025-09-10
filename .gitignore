@@ -29,6 +29,7 @@ dist-ssr
 cache
 artifacts
 typechain-types
+deployments/
 
 # Coverage directory used by tools like istanbul
 coverage

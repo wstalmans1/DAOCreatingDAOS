@@ -1,13 +1,11 @@
 import hre from 'hardhat'
 import fs from 'fs'
 import path from 'path'
+import { type Abi } from 'viem'
 
 type Addr = `0x${string}`
 
-const REGISTRY_ABI = [
-  'function totalCircles() view returns (uint256)',
-  'function circles(uint256 id) view returns (uint256 id_, uint256 parentId, address governor, address timelock, address treasury, address token, string name)',
-]
+// ABI will be loaded from artifacts for accurate typing
 
 type Circle = {
   id: number
@@ -35,17 +33,15 @@ function printTree(nodes: Circle[], depth = 0, verbose = false) {
 }
 
 async function main() {
-  const { ethers } = hre
   const verbose = process.env.VERBOSE === '1' || process.env.VERBOSE === 'true'
   const asJson = process.env.JSON === '1' || process.env.JSON === 'true'
 
-  const net = await ethers.provider.getNetwork()
-  let netName = net?.name && net.name !== 'unknown' ? net.name : ''
-  if (!netName) {
-    if (net.chainId === 31337n) netName = 'localhost'
-    else if (net.chainId === 11155111n) netName = 'sepolia'
-    else netName = net.chainId.toString()
-  }
+  const publicClient = await hre.viem.getPublicClient()
+  const chainId = await publicClient.getChainId()
+  let netName = ''
+  if (chainId === 31337 || chainId === 1337) netName = 'localhost'
+  else if (chainId === 11155111) netName = 'sepolia'
+  else netName = String(chainId)
 
   const deploymentsFile = path.join('deployments', netName, 'root.json')
   if (!fs.existsSync(deploymentsFile)) {
@@ -54,22 +50,31 @@ async function main() {
   const rootData = JSON.parse(fs.readFileSync(deploymentsFile, 'utf8'))
   const registryAddr = rootData.registry as Addr
 
-  const registry = new ethers.Contract(registryAddr, REGISTRY_ABI, (await ethers.getSigners())[0])
-  const total: bigint = await registry.totalCircles()
+  const registryAbi = (await hre.artifacts.readArtifact('CircleRegistry')).abi as Abi
+  const total = (await publicClient.readContract({
+    address: registryAddr,
+    abi: registryAbi,
+    functionName: 'totalCircles',
+  })) as bigint
   const count = Number(total)
   const byId = new Map<number, Circle>()
   const roots: Circle[] = []
 
   for (let i = 1; i <= count; i++) {
-    const c = await registry.circles(i)
+    const c = (await publicClient.readContract({
+      address: registryAddr,
+      abi: registryAbi,
+      functionName: 'circles',
+      args: [BigInt(i)],
+    })) as any
     const circle: Circle = {
-      id: Number(c.id_),
-      parentId: Number(c.parentId),
-      governor: c.governor as Addr,
-      timelock: c.timelock as Addr,
-      treasury: c.treasury as Addr,
-      token: c.token as Addr,
-      name: c.name as string,
+      id: Number(c.id_ ?? c[0]),
+      parentId: Number(c.parentId ?? c[1]),
+      governor: (c.governor ?? c[2]) as Addr,
+      timelock: (c.timelock ?? c[3]) as Addr,
+      treasury: (c.treasury ?? c[4]) as Addr,
+      token: (c.token ?? c[5]) as Addr,
+      name: (c.name ?? c[6]) as string,
       children: [],
     }
     byId.set(circle.id, circle)
