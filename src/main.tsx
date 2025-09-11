@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { config } from './config/wagmi'
 import App from './App'
+import { ErrorBoundary } from './components/common/ErrorBoundary'
 import './index.css'
 import '@rainbow-me/rainbowkit/styles.css'
 
@@ -27,7 +28,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <App />
+          <ErrorBoundary>
+            <App />
+          </ErrorBoundary>
           <ReactQueryDevtools initialIsOpen={false} />
         </RainbowKitProvider>
       </QueryClientProvider>

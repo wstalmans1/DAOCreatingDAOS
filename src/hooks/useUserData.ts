@@ -24,8 +24,9 @@ const ERC20_ABI = [
   },
 ] as const
 
-// Replace with your deployed contract address
-const CONTRACT_ADDRESS = import.meta.env.VITE_MY_TOKEN_ADDRESS as `0x${string}`
+// Always use the governance token (root)
+const GOV_TOKEN = import.meta.env.VITE_VOTING_TOKEN_ROOT_ADDRESS as `0x${string}` | undefined
+const CONTRACT_ADDRESS = GOV_TOKEN as `0x${string}`
 
 export function useUserData() {
   const { address, chainId } = useAccount()
@@ -65,6 +66,8 @@ export function useUserData() {
     },
   })
 
+  const source = 'Voting Token (root)'
+
   return {
     balance,
     symbol,
@@ -72,5 +75,6 @@ export function useUserData() {
     isLoadingBalance,
     balanceError,
     contractAddress: CONTRACT_ADDRESS,
+    source,
   }
 }

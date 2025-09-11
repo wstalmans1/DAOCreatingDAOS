@@ -13,8 +13,6 @@
     "format:check": "prettier . --check",
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
-    "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
     "deploy:root:local": "hardhat run scripts/deployRoot.ts --network localhost",
     "deploy:root:sepolia": "hardhat run scripts/deployRoot.ts --network sepolia",
     "circle:create:local": "hardhat run scripts/proposeChild.ts --network localhost",
@@ -23,10 +21,14 @@
     "circle:create-under:sepolia": "PARENT_ID=1 hardhat run scripts/proposeChildUnder.ts --network sepolia",
     "circle:list:local": "hardhat run scripts/listCircles.ts --network localhost",
     "circle:list:sepolia": "hardhat run scripts/listCircles.ts --network sepolia",
+    "votes:grant-quorum": "node scripts/grantQuorumVotes.cjs",
     "verify": "node scripts/verify.js",
-    "verify:sepolia": "node scripts/verify.js --network sepolia"
+    "verify:sepolia": "node scripts/verify.js --network sepolia",
+    "env:update:local": "node scripts/updateEnvFromDeploy.cjs localhost",
+    "deploy:root:1155:local": "node scripts/deployRoot1155.cjs && node scripts/updateEnvFromDeploy.cjs localhost"
   },
   "dependencies": {
+    "@wagmi/connectors": "^4.1.25",
     "@rainbow-me/rainbowkit": "2.0.0",
     "@tanstack/react-query": "^5.85.5",
     "buffer": "^6.0.3",
@@ -37,7 +39,9 @@
     "util": "^0.12.5",
     "viem": "^2.7.6",
     "wagmi": "2.5.0",
-    "zustand": "4.4.7"
+    "zustand": "4.4.7",
+    "d3-hierarchy": "^3.1.2",
+    "d3-shape": "^3.2.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^6.1.0",
@@ -47,8 +51,8 @@
     "@types/node": "24.3.0",
     "@types/react": "18.2.43",
     "@types/react-dom": "18.2.17",
-    "@typescript-eslint/eslint-plugin": "6.14.0",
-    "@typescript-eslint/parser": "6.14.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-react": "4.2.1",
     "autoprefixer": "10.4.16",
     "dotenv": "^16.4.5",
@@ -66,7 +70,7 @@
     "postcss": "8.4.32",
     "tailwindcss": "3.3.6",
     "ts-node": "^10.9.2",
-    "typescript": "5.9.2",
+    "typescript": "5.6.3",
     "vite": "5.4.19"
   },
   "lint-staged": {
