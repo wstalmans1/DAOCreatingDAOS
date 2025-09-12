@@ -28,10 +28,14 @@
     "deploy:root:1155:local": "node scripts/deployRoot1155.cjs && node scripts/updateEnvFromDeploy.cjs localhost"
   },
   "dependencies": {
-    "@wagmi/connectors": "^4.1.25",
     "@rainbow-me/rainbowkit": "2.0.0",
     "@tanstack/react-query": "^5.85.5",
+    "@wagmi/connectors": "^4.1.25",
     "buffer": "^6.0.3",
+    "d3-hierarchy": "^3.1.2",
+    "d3-shape": "^3.2.0",
+    "framer-motion": "^12.23.12",
+    "lucide-react": "^0.544.0",
     "process": "^0.11.10",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -39,12 +43,11 @@
     "util": "^0.12.5",
     "viem": "^2.7.6",
     "wagmi": "2.5.0",
-    "zustand": "4.4.7",
-    "d3-hierarchy": "^3.1.2",
-    "d3-shape": "^3.2.0"
+    "zustand": "4.4.7"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@nomicfoundation/hardhat-viem": "^2.0.7",
     "@openzeppelin/contracts": "^5.4.0",
     "@openzeppelin/contracts-upgradeable": "^5.4.0",
     "@tanstack/react-query-devtools": "^5.85.5",
@@ -57,21 +60,20 @@
     "autoprefixer": "10.4.16",
     "dotenv": "^16.4.5",
     "eslint": "8.57.1",
-    "eslint-plugin-react-hooks": "4.6.0",
-    "eslint-plugin-react-refresh": "0.4.5",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "prettier": "^3.3.3",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-plugin-react-refresh": "0.4.5",
+    "hardhat": "^2.26.1",
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
-    "vite-plugin-eslint": "^1.8.1",
-    "@nomicfoundation/hardhat-viem": "^2.0.7",
-    "hardhat": "^2.26.1",
     "postcss": "8.4.32",
+    "prettier": "^3.3.3",
     "tailwindcss": "3.3.6",
     "ts-node": "^10.9.2",
     "typescript": "5.6.3",
-    "vite": "5.4.19"
+    "vite": "5.4.19",
+    "vite-plugin-eslint": "^1.8.1"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

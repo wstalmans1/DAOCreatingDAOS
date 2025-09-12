@@ -20,18 +20,37 @@ function buildHierarchy(root: CircleNode, collapsed: Set<string>) {
 
 export const TreeHorizontal: React.FC<Props> = ({ root, onSelect }) => {
   const [collapsed, setCollapsed] = React.useState<Set<string>>(() => new Set())
+  const [seenNodes, setSeenNodes] = React.useState<Set<string>>(() => new Set())
 
-  // Auto-collapse very deep nodes on first render to keep overviewable
+  // Auto-collapse very deep nodes while preserving existing collapse state
   React.useEffect(() => {
-    const s = new Set<string>()
-    const walk = (n: CircleNode, depth: number) => {
-      if (depth >= 3 && n.children.length) s.add(String(n.id))
-      n.children.forEach((c) => walk(c, depth + 1))
-    }
-    walk(root, 0)
-    setCollapsed(s)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [root])
+    setCollapsed((prevCollapsed) => {
+      const newCollapsed = new Set(prevCollapsed)
+
+      // Track all nodes we've seen before
+      const currentNodes = new Set<string>()
+      const walk = (n: CircleNode, depth: number) => {
+        const nodeId = String(n.id)
+        currentNodes.add(nodeId)
+
+        // Only auto-collapse if:
+        // 1. It's a deep node (depth >= 3)
+        // 2. It has children
+        // 3. We haven't seen this node before (it's truly new)
+        if (depth >= 3 && n.children.length && !seenNodes.has(nodeId)) {
+          newCollapsed.add(nodeId)
+        }
+
+        n.children.forEach((c) => walk(c, depth + 1))
+      }
+      walk(root, 0)
+
+      // Update our seen nodes
+      setSeenNodes(currentNodes)
+
+      return newCollapsed
+    })
+  }, [root, seenNodes])
 
   const h = React.useMemo(() => buildHierarchy(root, collapsed), [root, collapsed])
 
