@@ -29,8 +29,8 @@ const localhostWsUrl = import.meta.env.VITE_LOCALHOST_WS_URL || ''
 const isLocal = envChainId === 31337 || envChainId === 1337
 const localhost = defineChain({
   id: envChainId && isLocal ? envChainId : 1337,
-  name: 'Localhost',
-  network: 'localhost',
+  name: envChainId === 31337 ? 'Anvil Local' : 'Localhost',
+  network: envChainId === 31337 ? 'anvil' : 'localhost',
   nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
   rpcUrls: {
     default: {
@@ -76,3 +76,10 @@ export const config = hasWalletConnect
       connectors: [injected({ shimDisconnect: true })],
       ssr: false,
     })
+
+const fallbackChainId = isLocal ? localhost.id : sepolia.id
+const configuredChainIds = new Set(config.chains.map((chain) => chain.id))
+
+if (!configuredChainIds.has(config.state.chainId)) {
+  config.setState((state) => ({ ...state, chainId: fallbackChainId }))
+}

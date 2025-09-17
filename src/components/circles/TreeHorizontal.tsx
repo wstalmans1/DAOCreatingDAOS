@@ -50,7 +50,7 @@ export const TreeHorizontal: React.FC<Props> = ({ root, onSelect }) => {
 
       return newCollapsed
     })
-  }, [root, seenNodes])
+  }, [root]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const h = React.useMemo(() => buildHierarchy(root, collapsed), [root, collapsed])
 
