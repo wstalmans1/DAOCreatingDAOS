@@ -24,8 +24,12 @@
     "votes:grant-quorum": "node scripts/grantQuorumVotes.cjs",
     "verify": "node scripts/verify.js",
     "verify:sepolia": "node scripts/verify.js --network sepolia",
+    "verify:anvil": "pnpm exec ts-node scripts/verifyAnvil.ts",
+    "verify:blockscout": "pnpm exec ts-node scripts/verifyBlockscout.ts",
     "env:update:local": "node scripts/updateEnvFromDeploy.cjs localhost",
-    "deploy:root:1155:local": "node scripts/deployRoot1155.cjs && node scripts/updateEnvFromDeploy.cjs localhost"
+    "deploy:root:1155:local": "node scripts/deployRoot1155.cjs && node scripts/updateEnvFromDeploy.cjs localhost",
+    "anvil": "anvil --chain-id 31337 --block-base-fee-per-gas 0 --code-size-limit 10000000",
+    "anvil:quiet": "anvil --chain-id 31337 --block-base-fee-per-gas 0 --code-size-limit 10000000 --quiet"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "2.0.0",

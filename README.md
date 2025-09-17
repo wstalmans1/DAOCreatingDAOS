@@ -79,6 +79,14 @@ Verify on Etherscan (reads address from deployments folder):
 pnpm verify:sepolia
 ```
 
+Verify the Anvil deployment on the local Blockscout instance (token, registry, factory, and root governor/timelock/treasury):
+
+```bash
+pnpm verify:blockscout
+```
+
+The script defaults to `http://localhost/api`, reads addresses from `deployments/anvil/root.json`, and queries Anvil at `http://127.0.0.1:8545`. Override with `BLOCKSCOUT_API_URL`, `BLOCKSCOUT_API_KEY`, `BLOCKSCOUT_RPC_URL`, or `DEPLOYMENTS_ROOT` if your setup differs.
+
 ### 4. Frontend Development
 
 Start the development server:
@@ -99,6 +107,16 @@ Deployment artifacts are saved to `deployments/<network>/`:
 After deploying to your target network, copy the token address into `.env.local` as `VITE_MY_TOKEN_ADDRESS` for the frontend to read.
 
 Optional: To use WebSockets in the frontend (default is HTTP to avoid blocked WS environments), set `VITE_USE_WS=true` in `.env.local`.
+
+### Anvil setup (Foundry)
+
+If you prefer developing against Foundry's Anvil, start it with an increased code size limit so the full governance stack can deploy:
+
+```bash
+pnpm anvil
+```
+
+This runs `anvil --chain-id 31337 --block-base-fee-per-gas 0 --code-size-limit 10000000`. After the chain is live you can deploy with `npx hardhat run scripts/deployAnvil.ts --network anvil` and sync `.env.local` from the resulting `deployments/anvil/root.json` via `node scripts/updateEnvFromDeploy.cjs anvil`.
 
 ## 🏗️ Project Structure
 
